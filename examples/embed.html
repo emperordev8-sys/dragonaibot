@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dragon Rifat Button Embed</title>
+    <style>
+      @font-face {
+        font-family: 'RX100';
+        src: url('./assets/fonts/RX100.woff2') format('woff2'), url('./assets/fonts/RX100.ttf') format('truetype');
+        font-display: swap;
+      }
+      :root {
+        --bg: #05070d;
+        --fg: #e8eefc;
+        --muted: #7f8db0;
+        --line: #182138;
+        --warn: #ff4d5e;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: 'RX100', ui-monospace, monospace;
+        padding: 16px;
+        box-sizing: border-box;
+      }
+      main {
+        display: grid;
+        gap: 16px;
+        justify-items: center;
+        max-width: 520px;
+        text-align: center;
+      }
+      .tag {
+        border: 1px solid var(--warn);
+        color: var(--warn);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        letter-spacing: 0.1em;
+      }
+      pre {
+        width: 100%;
+        max-height: 200px;
+        overflow: auto;
+        text-align: left;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 8px;
+        font-size: 12px;
+        color: var(--muted);
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <span class="tag">SIMULATED DATA · DEMO MODE</span>
+      <!-- The optional AI button. Any page can host it. -->
+      <dragon-rifat-button></dragon-rifat-button>
+      <pre id="log">Click the AI button to start the bot.</pre>
+    </main>
+
+    <script type="module">
+      import { DragonRifatBot, SimulatedMarketDataProvider } from '../src/index.js';
+      import { defineDragonRifatButton } from '../src/ui/index.js';
+
+      defineDragonRifatButton();
+      const bot = new DragonRifatBot({ marketProvider: new SimulatedMarketDataProvider() });
+      document.querySelector('dragon-rifat-button').bot = bot;
+
+      const log = document.getElementById('log');
+      const write = (line) => (log.textContent = `${new Date().toLocaleTimeString()}  ${line}\n${log.textContent}`.slice(0, 4000));
+      bot.on('analysis', (a) => write(`analysis ${a.decision} ${a.score}/100${a.blockedBy ? ` (${a.blockedBy})` : ''}`));
+      bot.on('signal', (s) => write(`SIGNAL ${s.direction} ${s.score}/100: ${s.reasons.join('; ')}`));
+      bot.on('result', (r) => write(`RESULT ${r.result} (P/L ${r.pnl})`));
+      bot.on('error', (e) => write(`error ${e.code}: ${e.message}`));
+    </script>
+  </body>
+</html>

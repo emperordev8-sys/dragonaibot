@@ -1,0 +1,42 @@
+{
+  "name": "dragon-rifat-bot",
+  "version": "1.0.0",
+  "description": "DRAGON RIFAT AI BOT - reusable AI market-analysis and trade-execution engine (5-second analysis, 1-minute signals).",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/types/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./ui": {
+      "types": "./src/types/ui.d.ts",
+      "default": "./src/ui/index.js"
+    }
+  },
+  "files": [
+    "src",
+    "docs",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "example:demo": "node examples/node-demo.js",
+    "example:backtest": "node examples/backtest.js",
+    "example:custom-feed": "node examples/custom-feed.js",
+    "example:browser": "node examples/serve.js",
+    "example:live": "node examples/live-binance.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "devDependencies": {
+    "jsdom": "^29.1.1",
+    "vitest": "^5.0.3"
+  }
+}
