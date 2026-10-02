@@ -24,7 +24,7 @@ export class OfficialApiAdapterTemplate extends ExecutionProvider {
     this.baseUrl = baseUrl.replace(/\/$/, '');
     this.accountId = accountId;
     this.live = live;
-    this.fetch = fetchImpl;
+    this.fetch = (...args) => fetchImpl(...args); // browsers require fetch to be called unbound
     this.timeoutMs = timeoutMs;
     // Keep secrets in non-enumerable properties so they never appear in logs or JSON.
     Object.defineProperty(this, 'credentials', { value: { apiKey, apiSecret }, enumerable: false });

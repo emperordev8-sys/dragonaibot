@@ -18,16 +18,18 @@
   "files": [
     "src",
     "docs",
-    "README.md"
+    "README.md",
+    "demo",
+    "index.html"
   ],
   "sideEffects": false,
   "scripts": {
+    "demo": "node examples/serve.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "example:demo": "node examples/node-demo.js",
     "example:backtest": "node examples/backtest.js",
     "example:custom-feed": "node examples/custom-feed.js",
-    "example:browser": "node examples/serve.js",
     "example:live": "node examples/live-binance.js"
   },
   "engines": {

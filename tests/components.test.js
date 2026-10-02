@@ -281,3 +281,21 @@ describe('notifications', () => {
     await expect(t.notify('result', {})).rejects.not.toThrow(/TOKEN123/);
   });
 });
+
+describe('ScaledClock', () => {
+  it('runs faster than real time and freezes while paused', async () => {
+    const { ScaledClock } = await import('../src/core/Clock.js');
+    vi.useFakeTimers();
+    vi.setSystemTime(1_000_000);
+    const c = new ScaledClock(10);
+    vi.setSystemTime(1_001_000); // 1 real second
+    expect(c.now()).toBe(1_010_000); // 10 market seconds
+    c.pause();
+    vi.setSystemTime(1_060_000); // a minute in a hidden tab
+    expect(c.now()).toBe(1_010_000);
+    c.resume();
+    vi.setSystemTime(1_060_500);
+    expect(c.now()).toBe(1_015_000); // continues from where it stopped
+    vi.useRealTimers();
+  });
+});

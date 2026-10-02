@@ -59,6 +59,8 @@ export function normalizeWeights(weights = WEIGHTS) {
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 const sign = (v) => (v > 0 ? 1 : v < 0 ? -1 : 0);
 const avg = (arr) => arr.reduce((a, b) => a + b, 0) / arr.length;
+// Comparison word consistent with the values as displayed (1 decimal).
+const rel = (a, b) => (a.toFixed(1) === b.toFixed(1) ? 'level with' : a > b ? 'above' : 'below');
 
 function candleShape(c) {
   const range = c.high - c.low;
@@ -228,8 +230,8 @@ export function evaluateSetup(input, config = DEFAULT_STRATEGY_CONFIG) {
     const v = clamp(0.7 * dirDI * strength + 0.3 * side * strength, -1, 1);
     comp.trend = v;
     why.trend = {
-      bull: `ADX ${adxVal.toFixed(1)} with +DI (${pdi.toFixed(1)}) above -DI (${mdi.toFixed(1)}), price ${price > ema50 ? 'above' : 'below'} ${L.slow}`,
-      bear: `ADX ${adxVal.toFixed(1)} with -DI (${mdi.toFixed(1)}) above +DI (${pdi.toFixed(1)}), price ${price < ema50 ? 'below' : 'above'} ${L.slow}`,
+      bull: `Trend: ADX ${adxVal.toFixed(1)}, +DI (${pdi.toFixed(1)}) ${rel(pdi, mdi)} -DI (${mdi.toFixed(1)}), price ${price >= ema50 ? 'above' : 'below'} ${L.slow}`,
+      bear: `Trend: ADX ${adxVal.toFixed(1)}, -DI (${mdi.toFixed(1)}) ${rel(mdi, pdi)} +DI (${pdi.toFixed(1)}), price ${price <= ema50 ? 'below' : 'above'} ${L.slow}`,
     };
   }
 
@@ -243,10 +245,8 @@ export function evaluateSetup(input, config = DEFAULT_STRATEGY_CONFIG) {
     if (v < 0 && stK < 15) v *= 0.5;
     comp.momentum = clamp(v, -1, 1);
     const pct = ((price - ref) / ref) * 100;
-    why.momentum = {
-      bull: `Positive momentum: price up ${pct.toFixed(3)}% over 3 candles, Stochastic %K ${stK.toFixed(1)} above %D ${stD.toFixed(1)}`,
-      bear: `Negative momentum: price down ${Math.abs(pct).toFixed(3)}% over 3 candles, Stochastic %K ${stK.toFixed(1)} below %D ${stD.toFixed(1)}`,
-    };
+    const move = `price ${pct >= 0 ? 'up' : 'down'} ${Math.abs(pct).toFixed(3)}% over 3 candles, Stochastic %K ${stK.toFixed(1)} ${rel(stK, stD)} %D ${stD.toFixed(1)}`;
+    why.momentum = { bull: `Positive momentum: ${move}`, bear: `Negative momentum: ${move}` };
   }
 
   // EMA structure
@@ -276,10 +276,16 @@ export function evaluateSetup(input, config = DEFAULT_STRATEGY_CONFIG) {
     else if (rsiVal >= 20) v = -(1 - (30 - rsiVal) / 10);
     else v = 0.5;
     comp.rsi = clamp(v, -1, 1);
-    why.rsi = {
-      bull: `RSI ${rsiVal.toFixed(1)} in bullish zone (50-70)`,
-      bear: `RSI ${rsiVal.toFixed(1)} in bearish zone (30-50)`,
-    };
+    // One factual description of the zone the RSI is actually in (used for either side).
+    const zone =
+      rsiVal > 80 ? 'overbought (above 80): pullback risk'
+        : rsiVal > 70 ? 'strong (70-80)'
+          : rsiVal >= 50 ? 'in bullish zone (50-70)'
+            : rsiVal >= 30 ? 'in bearish zone (30-50)'
+              : rsiVal >= 20 ? 'weak (20-30)'
+                : 'oversold (below 20): rebound risk';
+    const rsiText = `RSI ${rsiVal.toFixed(1)} ${zone}`;
+    why.rsi = { bull: rsiText, bear: rsiText };
   }
 
   // MACD histogram sign and direction of change

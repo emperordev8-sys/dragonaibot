@@ -41,7 +41,7 @@ export class BinanceMarketDataProvider extends MarketDataProvider {
     this.restTimeoutMs = restTimeoutMs;
     this.maxBackoffMs = maxBackoffMs;
     this.WebSocket = WebSocketImpl;
-    this.fetch = fetchImpl;
+    this.fetch = (...args) => fetchImpl(...args); // browsers require fetch to be called unbound
     this.localNow = now;
     this.syncTime = syncTime;
     this.timeSyncIntervalMs = timeSyncIntervalMs;

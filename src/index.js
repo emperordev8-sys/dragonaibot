@@ -5,7 +5,7 @@ export { BOT_STATES, DECISIONS, RESULTS, PAUSE_REASONS, EVENTS, ERROR_CODES, DIS
 export { BotError, UnsupportedOperationError } from './core/errors.js';
 export { EventBus } from './core/EventBus.js';
 export { StateMachine, TRANSITIONS, InvalidTransitionError } from './core/StateMachine.js';
-export { SystemClock, VirtualClock } from './core/Clock.js';
+export { SystemClock, VirtualClock, ScaledClock } from './core/Clock.js';
 export { createLogger, silentLogger, redact } from './core/Logger.js';
 export { DEFAULTS, DEFAULT_MARKET_CONFIG } from './core/config.js';
 

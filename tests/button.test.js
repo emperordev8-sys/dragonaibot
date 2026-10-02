@@ -50,7 +50,10 @@ describe('DragonRifatButton (optional UI)', () => {
     expect(btn(el).textContent).toContain('UP');
     expect(btn(el).textContent).toContain('80/100');
     expect(btn(el).textContent).toMatch(/00:[45]\d/);
-    expect(btn(el).disabled).toBe(true); // no clicks during an active trade
+    expect(btn(el).getAttribute('aria-disabled')).toBe('true'); // no clicks during an active trade
+    const before = ctx.bot.getStatus().state;
+    btn(el).click();
+    expect(ctx.bot.getStatus().state).toBe(before); // a click during the trade changes nothing
 
     await ctx.drive(20, 72, (s) => (s >= 60 ? 1.2 : 1.1));
     expect(el.getAttribute('state')).toBe('RESULT');
@@ -73,5 +76,20 @@ describe('DragonRifatButton (optional UI)', () => {
     delete globalThis.customElements;
     expect(defineDragonRifatButton('x-test')).toBeNull();
     globalThis.customElements = saved;
+  });
+});
+
+describe('logo', () => {
+  it('shows the brand logo inside the button when the logo attribute is set', () => {
+    defineDragonRifatButton();
+    const el = document.createElement('dragon-rifat-button');
+    el.setAttribute('logo', 'assets/logo.jpg');
+    document.body.appendChild(el);
+    const img = el.shadowRoot.querySelector('img.logo');
+    expect(img).not.toBeNull();
+    expect(img.getAttribute('src')).toBe('assets/logo.jpg');
+    el.setAttribute('logo', '"><script>');
+    expect(el.shadowRoot.querySelector('script')).toBeNull(); // attribute value is sanitised
+    el.remove();
   });
 });

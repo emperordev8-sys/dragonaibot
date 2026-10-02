@@ -16,6 +16,25 @@ LIVE MARKET DATA → 5-SECOND ANALYSIS → WAIT / UP / DOWN → RISK CHECK
 
 > Signals come from automated technical analysis. A score such as 82/100 is a **strategy score, not a probability of winning**. Past or simulated results do not guarantee future results. Trading involves risk of loss.
 
+## Demo chart (test the AI)
+
+A full-screen, professional candlestick chart with the AI button on it, for testing the bot visually.
+
+```
+npm install
+npm run demo
+```
+
+Open http://localhost:8080 and tap the AI. Choose **Demo market** (simulated prices, adjustable speed) or **Live market** (real prices) in **Settings**. History, settings and the full configuration are in the top bar.
+
+**Deploy (no build step):** the demo is plain static files. Publish the whole project folder to any static host and the site opens the demo automatically (`index.html` redirects to `demo/`):
+
+- **GitHub Pages:** repository → Settings → Pages → Branch `main`, folder `/ (root)` → Save. The demo appears at `https://<user>.github.io/<repo>/`.
+- **Netlify:** drag the project folder onto app.netlify.com/drop.
+- **Vercel:** import the repository, framework "Other", no build command.
+
+All settings are listed in [docs/SETTINGS.md](docs/SETTINGS.md).
+
 ## Quick start
 
 ```js
@@ -50,7 +69,7 @@ Try it without writing any code:
 | `npm run example:demo` | Full bot loop in the terminal (SIMULATED DATA, paper trading) |
 | `npm run example:backtest` | Backtest report on simulated data |
 | `npm run example:custom-feed` | Shows how to connect a price feed you already have |
-| `npm run example:browser` | Serves `examples/embed.html` with the optional AI button |
+| `npm run demo` | Full-screen demo chart with the AI button at http://localhost:8080 |
 
 ## Public API
 
@@ -92,6 +111,7 @@ Any scanning state can go to `PAUSED` (risk limit, safety stop, or manual pause)
 - [Architecture](docs/ARCHITECTURE.md): modules, data flow, state machine, timing
 - [Integration guide](docs/INTEGRATION.md): configuration, market data, execution providers, the AI button, error handling, adding a platform adapter
 - [Backtesting](docs/BACKTESTING.md)
+- [Full settings](docs/SETTINGS.md)
 
 ## Project layout
 
@@ -107,6 +127,7 @@ src/
   notifications/  NotificationProvider (+ console, Telegram)
   ui/             DragonRifatButton (optional Web Component)
   types/          TypeScript definitions
+demo/             full-screen demo chart with the AI button (static, deployable)
 examples/         minimal runnable examples
 tests/            unit and integration tests
 docs/             documentation

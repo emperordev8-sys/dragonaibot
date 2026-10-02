@@ -214,3 +214,15 @@ describe('replaceable risk and trade managers', () => {
     expect(() => new DragonRifatBot({ marketProvider: new ManualMarketDataProvider(), riskManager: { check() {} } })).toThrow(/riskManager is missing/);
   });
 });
+
+describe('browser compatibility', () => {
+  it('calls fetch unbound, like browsers require (no "Illegal invocation")', async () => {
+    const { FakeWS } = fakeWebSocketClass();
+    function browserLikeFetch() {
+      if (this !== undefined && this !== globalThis) throw new TypeError("Failed to execute 'fetch' on 'Window': Illegal invocation");
+      return Promise.resolve(okJson([]));
+    }
+    const p = new BinanceMarketDataProvider({ WebSocketImpl: FakeWS, fetchImpl: browserLikeFetch, syncTime: false });
+    await expect(p.getHistory('EUR/USD', { timeframeMs: 60000, limit: 10 })).resolves.toEqual([]);
+  });
+});

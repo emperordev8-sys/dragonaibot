@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#05070d" />
+    <title>Dragon Rifat AI Bot</title>
+    <link rel="icon" type="image/jpeg" href="assets/logo.jpg" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="bar">
+      <div class="brand">
+        <img src="assets/logo.jpg" alt="Dragon Rifat AI Bot" class="brand-logo" />
+        <span class="brand-name">DRAGON RIFAT <b>AI BOT</b></span>
+      </div>
+      <div class="bar-mid">
+        <span id="sourceBadge" class="badge warn">SIMULATED DATA</span>
+        <span class="badge">DEMO ACCOUNT</span>
+      </div>
+      <div class="bar-right">
+        <span class="stat"><small>BALANCE</small><b id="balance">1000.00</b></span>
+        <span class="stat wl"><small>W / L</small><b id="wl">0 / 0</b></span>
+        <button class="btn" id="btnHistory" title="Signal history">HISTORY</button>
+        <button class="btn" id="btnSettings" title="Settings">SETTINGS</button>
+        <button class="btn icon" id="btnFull" title="Fullscreen" aria-label="Fullscreen">&#x26F6;</button>
+      </div>
+    </header>
+
+    <main id="stage">
+      <div id="chart"></div>
+
+      <div class="market">
+        <div class="market-top"><span id="symbol">EUR/USD</span> <span class="dim">· 1 MIN</span> <span id="sourceSm" class="badge-sm"></span></div>
+        <div class="market-price"><span id="price">—</span> <span id="change" class="dim"></span></div>
+        <div class="dim small">candle closes in <span id="candleLeft" class="accent">--:--</span></div>
+        <div id="ohlc" class="dim small ohlc"></div>
+      </div>
+
+      <div class="tools">
+        <button class="tool" id="tEma" title="EMA 9 / 21" aria-pressed="true">EMA</button>
+        <button class="tool" id="tIn" title="Zoom in">+</button>
+        <button class="tool" id="tOut" title="Zoom out">&minus;</button>
+        <button class="tool" id="tLive" title="Jump to latest (or double-click the chart)">&#x21E5;</button>
+      </div>
+
+      <div class="ai">
+        <dragon-rifat-button id="aiButton" logo="assets/logo.jpg"></dragon-rifat-button>
+        <div id="aiPanel" class="ai-panel">Tap the AI to start. It analyses the market every 5 seconds and only signals on strong setups.</div>
+      </div>
+
+      <div class="legend dim small"><i class="sw c1"></i>EMA 9 <i class="sw c2"></i>EMA 21</div>
+      <div id="toast" class="toast" hidden></div>
+    </main>
+
+    <footer class="foot" id="disclaimer"></footer>
+
+    <aside class="drawer" id="historyDrawer" hidden>
+      <div class="drawer-head"><b>SIGNAL HISTORY</b><button class="btn icon" data-close aria-label="Close">&times;</button></div>
+      <div class="drawer-body">
+        <table class="table">
+          <thead><tr><th>Time</th><th>Signal</th><th>Score</th><th>Entry → Exit</th><th>Result</th><th>P/L</th></tr></thead>
+          <tbody id="historyRows"><tr><td colspan="6" class="dim">No signals yet.</td></tr></tbody>
+        </table>
+      </div>
+    </aside>
+
+    <aside class="drawer" id="settingsDrawer" hidden>
+      <div class="drawer-head"><b>SETTINGS</b><button class="btn icon" data-close aria-label="Close">&times;</button></div>
+      <form class="drawer-body form" id="settingsForm">
+        <label>Market data
+          <select name="source">
+            <option value="demo">Demo market (simulated prices)</option>
+            <option value="live">Live market (real prices, Binance)</option>
+          </select>
+        </label>
+        <label>Asset
+          <select name="symbol">
+            <option>EUR/USD</option><option>GBP/USD</option><option>BTC/USD</option><option>ETH/USD</option>
+          </select>
+        </label>
+        <label>Demo market speed
+          <select name="speed">
+            <option value="1">1x (real time)</option><option value="5">5x</option><option value="10">10x</option><option value="20">20x</option>
+          </select>
+          <small class="dim">Demo market only. At 10x a 1-minute trade takes 6 seconds.</small>
+        </label>
+        <div class="row">
+          <label>Trade amount <input name="amount" type="number" min="1" step="1" /></label>
+          <label>Starting balance <input name="startingBalance" type="number" min="1" step="1" /></label>
+        </div>
+        <div class="row">
+          <label>Payout % <input name="payoutPct" type="number" min="1" max="100" step="1" /></label>
+          <label>Min signal score <input name="minScore" type="number" min="0" max="100" step="1" /></label>
+        </div>
+        <div class="row">
+          <label>Max losses in a row <input name="maxConsecutiveLosses" type="number" min="1" step="1" /></label>
+          <label>Max daily loss <input name="maxDailyLoss" type="number" min="1" step="1" /></label>
+        </div>
+        <div class="row">
+          <label>Max trades / hour <input name="maxTradesPerHour" type="number" min="1" step="1" /></label>
+          <label>Analysis interval (s) <input name="analysisSec" type="number" value="5" disabled /></label>
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn gold">APPLY &amp; RESTART</button>
+          <button type="button" class="btn" id="btnDefaults">DEFAULTS</button>
+        </div>
+        <details>
+          <summary>Full bot configuration</summary>
+          <pre id="fullConfig"></pre>
+        </details>
+      </form>
+    </aside>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

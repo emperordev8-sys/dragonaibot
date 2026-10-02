@@ -21,6 +21,48 @@ export class SystemClock {
   }
 }
 
+/**
+ * Real-time clock running `speed` times faster (demo markets only: at 10x a 1-minute
+ * trade takes 6 real seconds). Market time and all timers scale together, so the bot's
+ * logic is unchanged. Never use with real market data.
+ */
+export class ScaledClock {
+  constructor(speed = 1) {
+    if (!(speed > 0)) throw new Error('speed must be > 0');
+    this.speed = speed;
+    this.realBase = Date.now();
+    this.marketBase = this.realBase;
+    this.paused = false;
+  }
+  now() {
+    if (this.paused) return this.marketBase;
+    return Math.round(this.marketBase + (Date.now() - this.realBase) * this.speed);
+  }
+  // Freeze market time (e.g. while the browser tab is hidden), then continue where it stopped.
+  pause() {
+    if (this.paused) return;
+    this.marketBase = this.now();
+    this.paused = true;
+  }
+  resume() {
+    if (!this.paused) return;
+    this.realBase = Date.now();
+    this.paused = false;
+  }
+  setInterval(fn, ms) {
+    return setInterval(fn, Math.max(1, ms / this.speed));
+  }
+  clearInterval(id) {
+    clearInterval(id);
+  }
+  setTimeout(fn, ms) {
+    return setTimeout(fn, Math.max(0, ms / this.speed));
+  }
+  clearTimeout(id) {
+    clearTimeout(id);
+  }
+}
+
 // Resolves after all pending microtasks have run (a "macrotask" boundary).
 const macrotask = () => new Promise((r) => (typeof setImmediate === 'function' ? setImmediate(r) : setTimeout(r, 0)));
 

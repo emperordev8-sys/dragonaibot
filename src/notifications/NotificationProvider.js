@@ -55,7 +55,7 @@ export class TelegramNotificationProvider extends NotificationProvider {
     if (!botToken || !chatId) throw new Error('TelegramNotificationProvider needs botToken and chatId');
     Object.defineProperty(this, 'botToken', { value: botToken, enumerable: false });
     this.chatId = chatId;
-    this.fetch = fetchImpl;
+    this.fetch = (...args) => fetchImpl(...args); // browsers require fetch to be called unbound
   }
 
   async notify(type, payload) {

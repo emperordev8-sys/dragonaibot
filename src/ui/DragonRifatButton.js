@@ -41,7 +41,7 @@ button { all: unset; box-sizing: border-box; cursor: pointer; width: var(--drb-s
 button:hover { transform: scale(1.03); }
 button:active { transform: scale(.97); }
 button:focus-visible { outline: 2px solid var(--drb-accent); outline-offset: 4px; }
-button[disabled] { cursor: default; }
+button[aria-disabled="true"] { cursor: default; }
 svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .track { fill: none; stroke: #182138; stroke-width: 4; }
 .bar { fill: none; stroke: var(--ring, var(--drb-accent)); stroke-width: 4; stroke-linecap: round;
@@ -57,6 +57,9 @@ svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: n
 .ai { color: var(--drb-gold); font-size: calc(var(--drb-size) * .24); }
 .small { font-size: calc(var(--drb-size) * .068); letter-spacing: .14em; opacity: .85; }
 .mono { font-size: calc(var(--drb-size) * .11); font-variant-numeric: tabular-nums; }
+.logo { width: calc(var(--drb-size) * .5); height: calc(var(--drb-size) * .5); border-radius: 50%; object-fit: cover;
+  border: 1px solid var(--drb-gold); display: block; }
+.logo.sm { width: calc(var(--drb-size) * .3); height: calc(var(--drb-size) * .3); }
 `;
 
 const fmt = (ms) => {
@@ -69,6 +72,22 @@ export function defineDragonRifatButton(tagName = 'dragon-rifat-button') {
   if (customElements.get(tagName)) return customElements.get(tagName);
 
   class DragonRifatButton extends HTMLElement {
+    // <dragon-rifat-button logo="logo.jpg"> shows the brand logo inside the button.
+    static get observedAttributes() {
+      return ['logo'];
+    }
+
+    attributeChangedCallback() {
+      this.render();
+    }
+
+    logoHtml(cls = '') {
+      const src = this.getAttribute('logo');
+      if (!src) return '';
+      const safe = src.replace(/["<>]/g, '');
+      return `<img class="logo ${cls}" src="${safe}" alt="" draggable="false">`;
+    }
+
     constructor() {
       super();
       this.root = this.attachShadow({ mode: 'open' });
@@ -164,16 +183,20 @@ export function defineDragonRifatButton(tagName = 'dragon-rifat-button') {
 
       switch (v.state) {
         case 'IDLE':
-          html = `<span class="ai">AI</span><span class="small">START</span>`;
+          html = this.getAttribute('logo')
+            ? `${this.logoHtml()}<span class="small">TAP TO START AI</span>`
+            : `<span class="ai">AI</span><span class="small">START</span>`;
           break;
         case 'SCANNING':
           html = v.noSignal
             ? `<span class="big" style="color:var(--drb-gold)">WAIT</span><span class="small">NO VALID SETUP</span>`
-            : `<span class="ai">AI</span><span class="small">SCANNING</span><span class="small">TAP TO ANALYZE</span>`;
+            : this.getAttribute('logo')
+              ? `${this.logoHtml('sm')}<span class="small">AI SCANNING</span><span class="small">TAP TO ANALYZE</span>`
+              : `<span class="ai">AI</span><span class="small">SCANNING</span><span class="small">TAP TO ANALYZE</span>`;
           ring = 'var(--drb-accent)';
           break;
         case 'ANALYZING':
-          html = `<span class="small">ANALYZING</span>`;
+          html = `${this.logoHtml('sm')}<span class="small">ANALYZING</span>`;
           break;
         case 'SIGNAL':
         case 'ACTIVE': {
@@ -206,7 +229,8 @@ export function defineDragonRifatButton(tagName = 'dragon-rifat-button') {
 
       this.btn.style.setProperty('--ring', ring);
       this.btn.setAttribute('aria-label', `Dragon Rifat AI: ${v.state.toLowerCase()}`);
-      this.btn.disabled = !['IDLE', 'SCANNING', 'PAUSED'].includes(v.state);
+      // aria-disabled (not the disabled attribute) so the host page can still drag the button; clicks are ignored in handleClick
+      this.btn.setAttribute('aria-disabled', String(!['IDLE', 'SCANNING', 'PAUSED'].includes(v.state)));
       this.btn.innerHTML = `
         <svg viewBox="0 0 100 100" aria-hidden="true">
           <circle class="dots" cx="50" cy="50" r="49"></circle>

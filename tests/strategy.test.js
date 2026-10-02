@@ -108,3 +108,32 @@ describe('configurable weights', () => {
     for (const text of r.reasons) expect(text).toMatch(/MACD/);
   });
 });
+
+describe('explanations are always factually consistent with the numbers', () => {
+  it('every RSI, momentum and trend reason matches the calculated values', () => {
+    let checked = 0;
+    for (let seed = 1; seed <= 120; seed++) {
+      const drift = ((seed % 7) - 3) * 0.00002;
+      const c = makeCandles(150, { drift, noise: 0.00006, seed });
+      const r = evaluateSetup(input(c), { minScore: 0, minMargin: 0, minVolatilityFactor: 0 });
+      const i = r.indicators;
+      if (!i) continue;
+      for (const text of [...r.reasons, ...r.cautions]) {
+        checked += 1;
+        if (text.startsWith('RSI')) {
+          const v = i.rsi;
+          if (/bullish zone/.test(text)) expect(v >= 50 && v <= 70).toBe(true);
+          if (/bearish zone/.test(text)) expect(v >= 30 && v < 50).toBe(true);
+          if (/oversold/.test(text)) expect(v < 20).toBe(true);
+          if (/overbought/.test(text)) expect(v > 80).toBe(true);
+        }
+        const m = /%K ([\d.]+) (above|below) %D ([\d.]+)/.exec(text);
+        if (m) expect(m[2] === 'above' ? +m[1] >= +m[3] : +m[1] < +m[3]).toBe(true);
+        const di = /\+DI \(([\d.]+)\) (above|below) -DI \(([\d.]+)\)/.exec(text);
+        if (di) expect(di[2] === 'above' ? +di[1] >= +di[3] : +di[1] < +di[3]).toBe(true);
+        expect(text).not.toMatch(/up -|down -/); // no "price up -0.01%"
+      }
+    }
+    expect(checked).toBeGreaterThan(100);
+  });
+});
